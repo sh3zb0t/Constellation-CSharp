@@ -1,7 +1,10 @@
+using System.Net.Http.Json;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using WaframeDiscordBot.JSON;
 
 namespace WaframeDiscordBot.Services;
 public class InteractionHandler
@@ -9,6 +12,14 @@ public class InteractionHandler
     private DiscordSocketClient DiscordClient { get; }
     private InteractionService Commands { get; }
     private IServiceProvider Services { get; }
+    
+    private RequestOptions Options { get; } = new()
+    {
+        RetryMode = RetryMode.AlwaysRetry | RetryMode.Retry502 | RetryMode.RetryRatelimit,
+        Timeout = 10000
+    };
+
+    private HttpClient HttpClient { get; } = new();
 
     // Using constructor injection
     public InteractionHandler(DiscordSocketClient discordClient, InteractionService commands, IServiceProvider services)
@@ -24,17 +35,11 @@ public class InteractionHandler
 
         // Process the InteractionCreated payloads to execute Interactions commands
         DiscordClient.InteractionCreated += HandleInteraction;
-        DiscordClient.MessageReceived += HandleMessage;
 
         // Process the command execution results 
         Commands.SlashCommandExecuted += SlashCommandExecuted;
         Commands.ContextCommandExecuted += ContextCommandExecuted;
         Commands.ComponentCommandExecuted += ComponentCommandExecuted;
-    }
-
-    private Task HandleMessage(SocketMessage arg)
-    {
-        throw new NotImplementedException();
     }
 
     private static Task ComponentCommandExecuted(ComponentCommandInfo arg1, IInteractionContext arg2, IResult arg3) => Task.CompletedTask;

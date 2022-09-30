@@ -40,6 +40,6 @@ commands.Log += _ => provider.GetRequiredService<ConsoleLogger>().Log(_);
 // Registers commands globally
 // client.Ready += async () => await commands.RegisterCommandsGloballyAsync();
 
-await client.LoginAsync(TokenType.Bot, GetEnvironmentVariable("PATRIOT_BOT_TOKEN"));
+await client.LoginAsync(TokenType.Bot, GetEnvironmentVariable("WARFRAME_DISCORD_BOT_TOKEN"));
 await client.StartAsync();
 await Task.Delay(-1);
