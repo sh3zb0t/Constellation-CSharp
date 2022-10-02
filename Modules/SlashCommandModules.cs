@@ -122,22 +122,10 @@ public class NormalCommandModule : InteractionModuleBase<SocketInteractionContex
 					                                          $"Expiry: {expiryTimes[i]}\n" +
 					                                          $"Type: {types[i]}\n");
 				}
+
+				steelPathCount = fissuresDeserializeObject.Count(fissure => fissure.IsHard);
+				stormCount = fissuresDeserializeObject.Count(fissure => fissure.IsStorm);
 				
-				steelPathCount = 0;
-				stormCount = 0;
-				foreach (var fissure in fissuresDeserializeObject)
-				{
-					if (fissure.IsHard)
-					{
-						steelPathCount++;
-					}
-
-					if (fissure.IsStorm)
-					{
-						stormCount++;
-					}
-				}
-
 				steelPathEmbedBuilder = new EmbedBuilder()
 					.WithTitle($"They are {steelPathCount} Steel Path Missions")
 					.WithColor(Color.Blue);
@@ -175,29 +163,18 @@ public class NormalCommandModule : InteractionModuleBase<SocketInteractionContex
 					}
 
 				}
-
-				steelPathCount = 0;
-				stormCount = 0;
-				foreach (var fissure in fissuresDeserializeObject)
-				{
-					if (fissure.IsHard)
-					{
-						steelPathCount++;
-					}
-
-					if (fissure.IsStorm)
-					{
-						stormCount++;
-					}
-				}
+				
+				steelPathCount = fissuresDeserializeObject.Count(fissure => fissure.IsHard);
+				stormCount = fissuresDeserializeObject.Count(fissure => fissure.IsStorm);
 				
 				steelPathEmbedBuilder = new EmbedBuilder()
 					.WithTitle($"They are {steelPathCount} Steel Path Missions")
 					.WithColor(Color.Blue);
+				
 				stormEmbedBuilder = new EmbedBuilder()
 					.WithTitle($"They are {stormCount} Storm Missions")
 					.WithColor(Color.Blue);
-				
+
 				foreach (var embed in new[] {steelPathEmbedBuilder, stormEmbedBuilder})
 				{
 					await FollowupAsync(embed: embed.Build(), options: Options);
