@@ -101,11 +101,7 @@ public class NormalCommandModule : InteractionModuleBase<SocketInteractionContex
 		var embedBuilder = new EmbedBuilder()
 			.WithTitle("Fissures")
 			.WithColor(Color.Blue);
-		EmbedBuilder steelPathEmbedBuilder;
-		EmbedBuilder stormEmbedBuilder;
 
-		int stormCount;
-		int steelPathCount;
 		switch (fissuresDeserializeObject.Count)
 		{
 			case <= 25:
@@ -123,18 +119,11 @@ public class NormalCommandModule : InteractionModuleBase<SocketInteractionContex
 					                                          $"Type: {types[i]}\n");
 				}
 
-				steelPathCount = fissuresDeserializeObject.Count(fissure => fissure.IsHard);
-				stormCount = fissuresDeserializeObject.Count(fissure => fissure.IsStorm);
-				
-				steelPathEmbedBuilder = new EmbedBuilder()
-					.WithTitle($"They are {steelPathCount} Steel Path Missions")
-					.WithColor(Color.Blue);
-				
-				stormEmbedBuilder = new EmbedBuilder()
-					.WithTitle($"They are {stormCount} Storm Missions")
-					.WithColor(Color.Blue);
-				
-				foreach (var embed in new[] {embedBuilder, steelPathEmbedBuilder, stormEmbedBuilder})
+				foreach (var embed in new[] {new EmbedBuilder()
+					         .WithTitle($"They are {fissuresDeserializeObject.Count(fissure => fissure.IsHard)} Steel Path Missions")
+					         .WithColor(Color.Blue), new EmbedBuilder()
+					         .WithTitle($"They are {fissuresDeserializeObject.Count(fissure => fissure.IsStorm)} Storm Missions")
+					         .WithColor(Color.Blue)})
 				{
 					await FollowupAsync(embed: embed.Build(), options: Options);
 				}
@@ -163,19 +152,12 @@ public class NormalCommandModule : InteractionModuleBase<SocketInteractionContex
 					}
 
 				}
-				
-				steelPathCount = fissuresDeserializeObject.Count(fissure => fissure.IsHard);
-				stormCount = fissuresDeserializeObject.Count(fissure => fissure.IsStorm);
-				
-				steelPathEmbedBuilder = new EmbedBuilder()
-					.WithTitle($"They are {steelPathCount} Steel Path Missions")
-					.WithColor(Color.Blue);
-				
-				stormEmbedBuilder = new EmbedBuilder()
-					.WithTitle($"They are {stormCount} Storm Missions")
-					.WithColor(Color.Blue);
 
-				foreach (var embed in new[] {steelPathEmbedBuilder, stormEmbedBuilder})
+				foreach (var embed in new[] {new EmbedBuilder()
+					         .WithTitle($"They are {fissuresDeserializeObject.Count(fissure => fissure.IsHard)} Steel Path Missions")
+					         .WithColor(Color.Blue), new EmbedBuilder()
+					         .WithTitle($"They are {fissuresDeserializeObject.Count(fissure => fissure.IsStorm)} Storm Missions")
+					         .WithColor(Color.Blue)})
 				{
 					await FollowupAsync(embed: embed.Build(), options: Options);
 				}
