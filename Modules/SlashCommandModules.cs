@@ -2,7 +2,6 @@ using System.Net.Http.Json;
 using System.Text.RegularExpressions;
 using Discord;
 using Discord.Interactions;
-using Discord.WebSocket;
 using Newtonsoft.Json;
 using WaframeDiscordBot.JSON;
 
@@ -81,9 +80,6 @@ public class NormalCommandModule : InteractionModuleBase<SocketInteractionContex
 		var enemyTypes = new List<string>();
 		var expiryTimes = new List<string>();
 		var types = new List<string>();
-		var isHard = new List<bool>();
-		var isStorm = new List<bool>();
-		
 
 		foreach (var fissure in fissuresDeserializeObject!)
 		{
@@ -94,8 +90,6 @@ public class NormalCommandModule : InteractionModuleBase<SocketInteractionContex
 			enemyTypes.Add(fissure.Enemy);
 			expiryTimes.Add($"<t:{timeLeftInUnix}:R>");
 			types.Add(fissure.Tier);
-			isHard.Add(fissure.IsHard);
-			isStorm.Add(fissure.IsHard);
 		}
 
 		var embedBuilder = new EmbedBuilder()
