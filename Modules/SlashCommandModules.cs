@@ -22,57 +22,33 @@ public sealed class NormalCommandModule : InteractionModuleBase<SocketInteractio
 	{
 		await DeferAsync(options: Options);
 		
-		var earthCycleTimeLeft = (await HttpClient.GetFromJsonAsync<EarthCycleJson.Root>("https://api.warframestat.us/pc/earthCycle"))?.TimeLeft;
-		var cetusCycleTimeLeft = (await HttpClient.GetFromJsonAsync<CetusCycleJSON.Root>("https://api.warframestat.us/pc/cetusCycle"))?.TimeLeft;
+		var cycleEnds = new Dictionary<string, long>();
 		
-		Regex hoursMatch = new(@"^(-?)([0-9]{1,2}h) ([0-9]{1,2}m) ([0-9]{1,2}s)$");
-		var earthCycleHoursMatch = hoursMatch.Match(earthCycleTimeLeft!);
-		var cetusCycleHoursMatch = hoursMatch.Match(cetusCycleTimeLeft!);
-		
-		Regex minutesMatch = new(@"^(-?)([0-9]{1,2}m) ([0-9]{1,2}s)$");
-		var earthCycleMinutesMatch = minutesMatch.Match(earthCycleTimeLeft!);
-		var cetusCycleMinutesMatch = minutesMatch.Match(cetusCycleTimeLeft!);
-		
-		Regex secondsMatch = new(@"^(-?)([0-9]{1,2}s)$");
-		var earthCycleSecondsMatch = secondsMatch.Match(earthCycleTimeLeft!);
-		var cetusCycleSecondsMatch = secondsMatch.Match(cetusCycleTimeLeft!);
+		foreach (var cycle in new[] {"earth", "cetus", "cambion", "zariman", "vallis"})
+		{
+			var json = await HttpClient.GetFromJsonAsync<CycleJson.Root>($"https://api.warframestat.us/pc/{cycle}Cycle");
+			var cycleHoursMatch = Regex.Match(json!.TimeLeft, @"(\d+)h (\d+)m (\d+)s");
+			var cycleMinutesMatch = Regex.Match(json.TimeLeft, @"(\d+)m (\d+)s");
+			var cycleSecondsMatch = Regex.Match(json.TimeLeft, @"(\d+)s");
 
-		var earthTimeLeft = earthCycleHoursMatch.Success switch
-		{
-			true => int.Parse(earthCycleHoursMatch.Groups[2].Value.Replace("h", "")) * 60 * 60 + int.Parse(earthCycleHoursMatch.Groups[3].Value.Replace("m", "")) * 60 +
-			        int.Parse(earthCycleHoursMatch.Groups[4].Value.Replace("s", "")),
-			false when earthCycleMinutesMatch.Success => int.Parse(earthCycleMinutesMatch.Groups[2].Value.Replace("m", "")) * 60 + int.Parse(earthCycleMinutesMatch.Groups[3].Value.Replace("s", "")),
-			false when earthCycleSecondsMatch.Success => int.Parse(earthCycleSecondsMatch.Groups[2].Value.Replace("s", "")),
-			_ => 0
-		};
+			var timeLeft = cycleHoursMatch.Success switch
+			{
+				true => int.Parse(cycleHoursMatch.Groups[1].Value) * 60 * 60 + int.Parse(cycleHoursMatch.Groups[2].Value) * 60 +
+				        int.Parse(cycleHoursMatch.Groups[3].Value),
+				false when cycleMinutesMatch.Success => int.Parse(cycleMinutesMatch.Groups[1].Value) * 60 + int.Parse(cycleMinutesMatch.Groups[2].Value),
+				false when cycleSecondsMatch.Success => int.Parse(cycleSecondsMatch.Groups[1].Value),
+				_ => 0
+			};
 		
-		var cetusTimeLeft = cetusCycleHoursMatch.Success switch
-		{
-			true => int.Parse(cetusCycleHoursMatch.Groups[2].Value.Replace("h", "")) * 60 * 60 + int.Parse(cetusCycleHoursMatch.Groups[3].Value.Replace("m", "")) * 60 +
-			        int.Parse(cetusCycleHoursMatch.Groups[4].Value.Replace("s", "")),
-			false when cetusCycleMinutesMatch.Success => int.Parse(cetusCycleMinutesMatch.Groups[2].Value.Replace("m", "")) * 60 + int.Parse(cetusCycleMinutesMatch.Groups[3].Value.Replace("s", "")),
-			false when cetusCycleSecondsMatch.Success => int.Parse(cetusCycleSecondsMatch.Groups[2].Value.Replace("s", "")),
-			_ => 0
-		};
+			cycleEnds.Add(cycle, DateTimeOffset.UtcNow.ToUnixTimeSeconds() + timeLeft);
+		}
 		
-		var earthCycleEnd = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + earthTimeLeft;
-		var cetusCycleEnd = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + cetusTimeLeft;
-
-		await FollowupAsync(embeds: new[]
-		{
-			new EmbedBuilder()
-				.WithTitle("Earth Cycle")
-				.WithDescription(
-					$"Earth Cycle will end **<t:{earthCycleEnd}:R>**")
-				.WithColor(Color.Blue)
-				.Build(),
-			new EmbedBuilder()
-				.WithTitle("Cetus Cycle")
-				.WithDescription(
-					$"Cetus Cycle will end **<t:{cetusCycleEnd}:R>**")
-				.WithColor(Color.Blue)
-				.Build()
-		}, options: Options);
+		await FollowupAsync(embeds: cycleEnds.Select(cycle => new EmbedBuilder()
+			.WithTitle($"{cycle.Key.First().ToString().ToUpper()}{cycle.Key[1..]} Cycle")
+			.WithDescription(
+				$"{cycle.Key.First().ToString().ToUpper()}{cycle.Key[1..]} Cycle will end** <t:{cycle.Value}:R>**")
+			.WithColor(Color.Blue)
+			.Build()).ToArray(), options: Options);
 	}
 
 	[SlashCommand("fissures", "Displays the fissures")]
