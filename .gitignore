@@ -427,7 +427,9 @@ vendor/pkg/
 pyenv
 Vagrantfile
 
-bin/
-idea/
+# Custom
+.DS_STORE
+obj/rider.project.restore.info
 obj/
-.DS_Store
+idea/
+.vscode/

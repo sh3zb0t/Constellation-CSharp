@@ -12,6 +12,6 @@ public abstract class CycleJson
         }
 
         [JsonPropertyName("timeLeft")]
-        public string TimeLeft { get; set; }
+        public string TimeLeft { get; }
     }
 }
