@@ -2,7 +2,6 @@ using System.Net.Http.Json;
 using System.Text.RegularExpressions;
 using Discord;
 using Discord.Interactions;
-using Newtonsoft.Json;
 using WaframeDiscordBot.JSON;
 
 namespace WaframeDiscordBot.Modules;
@@ -71,9 +70,7 @@ public class NormalCommandModule : InteractionModuleBase<SocketInteractionContex
 		await DeferAsync();
 		
 		var role = Context.Guild.Roles.FirstOrDefault(x => x.Name.ToLower().Contains("ping"));
-
-		var fissuresJsonResponse = await HttpClient.GetStringAsync("https://api.warframestat.us/pc/fissures");
-		var fissuresDeserializeObject = JsonConvert.DeserializeObject<List<FissuresJson.Root>>(fissuresJsonResponse);
+		var fissuresJsonResponse = await HttpClient.GetFromJsonAsync<List<FissuresJson.Root>>("https://api.warframestat.us/pc/fissures");
 
 		var planets = new List<string>();
 		var missionTypes = new List<string>();
@@ -81,7 +78,7 @@ public class NormalCommandModule : InteractionModuleBase<SocketInteractionContex
 		var expiryTimes = new List<string>();
 		var types = new List<string>();
 
-		foreach (var fissure in fissuresDeserializeObject!)
+		foreach (var fissure in fissuresJsonResponse!)
 		{
 			var timeLeftInUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds() +
 			                     (int)(fissure.Expiry - DateTimeOffset.UtcNow).TotalSeconds;
@@ -96,14 +93,14 @@ public class NormalCommandModule : InteractionModuleBase<SocketInteractionContex
 			.WithTitle("Fissures")
 			.WithColor(Color.Blue);
 
-		switch (fissuresDeserializeObject.Count)
+		switch (fissuresJsonResponse.Count)
 		{
 			case <= 25:
 				embedBuilder = new EmbedBuilder()
 					.WithTitle("Fissures")
 					.WithColor(Color.Blue);
 		
-				for (var i = 0; i < fissuresDeserializeObject.Count; i++)
+				for (var i = 0; i < fissuresJsonResponse.Count; i++)
 				{
 					
 					embedBuilder.AddField($"Fissure {i + 1}", $"Place: {planets[i]}\n" +
@@ -114,18 +111,18 @@ public class NormalCommandModule : InteractionModuleBase<SocketInteractionContex
 				}
 
 				foreach (var embed in new[] {new EmbedBuilder()
-					         .WithTitle($"They are {fissuresDeserializeObject.Count(fissure => fissure.IsHard)} Steel Path Missions")
+					         .WithTitle($"They are {fissuresJsonResponse.Count(fissure => fissure.IsHard)} Steel Path Missions")
 					         .WithColor(Color.Blue), new EmbedBuilder()
-					         .WithTitle($"They are {fissuresDeserializeObject.Count(fissure => fissure.IsStorm)} Storm Missions")
+					         .WithTitle($"They are {fissuresJsonResponse.Count(fissure => fissure.IsStorm)} Storm Missions")
 					         .WithColor(Color.Blue)})
 				{
 					await FollowupAsync(embed: embed.Build(), options: Options);
 				}
 				
 				break;
-			case >= 26:
+			case > 25:
 			{
-				for (var i = 0; i < fissuresDeserializeObject.Count; i++)
+				for (var i = 0; i < fissuresJsonResponse.Count; i++)
 				{
 					if (i % 25 == 0)
 					{
@@ -134,13 +131,13 @@ public class NormalCommandModule : InteractionModuleBase<SocketInteractionContex
 							.WithColor(Color.Blue);
 					}
 					
-					embedBuilder.AddField($"Fissure {i + 1}", $"Place: {planets[i]}\n" +
-					                                         $"Mission Type: {missionTypes[i]}\n" +
-					                                         $"Enemy: {enemyTypes[i]}\n" +
-					                                         $"Expiry: {expiryTimes[i]}\n" +
-					                                         $"Type: {types[i]}\n");
+					embedBuilder.AddField($"Fissure {i + 1}", $"Place: {planets[i]}\n" + 
+					                                          $"Mission Type: {missionTypes[i]}\n" + 
+					                                          $"Enemy: {enemyTypes[i]}\n" + 
+					                                          $"Expiry: {expiryTimes[i]}\n" + 
+					                                          $"Type: {types[i]}\n");
 					
-					if (i % 25 == 24 || i == fissuresDeserializeObject.Count - 1)
+					if (i % 25 == 24 || i == fissuresJsonResponse.Count - 1)
 					{
 						await FollowupAsync(embed: embedBuilder.Build(), options: Options);
 					}
@@ -148,9 +145,9 @@ public class NormalCommandModule : InteractionModuleBase<SocketInteractionContex
 				}
 
 				foreach (var embed in new[] {new EmbedBuilder()
-					         .WithTitle($"They are {fissuresDeserializeObject.Count(fissure => fissure.IsHard)} Steel Path Missions")
+					         .WithTitle($"They are {fissuresJsonResponse.Count(fissure => fissure.IsHard)} Steel Path Missions")
 					         .WithColor(Color.Blue), new EmbedBuilder()
-					         .WithTitle($"They are {fissuresDeserializeObject.Count(fissure => fissure.IsStorm)} Storm Missions")
+					         .WithTitle($"They are {fissuresJsonResponse.Count(fissure => fissure.IsStorm)} Storm Missions")
 					         .WithColor(Color.Blue)})
 				{
 					await FollowupAsync(embed: embed.Build(), options: Options);
