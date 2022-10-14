@@ -64,10 +64,37 @@ public sealed class NormalCommandModule : InteractionModuleBase<SocketInteractio
 		var enemyTypes = fissuresJsonResponse!.Select(x => x.Enemy).ToList();
 		var expiryTimes = fissuresJsonResponse!.Select(x => x.Expiry).ToList(); 
 		var types = fissuresJsonResponse!.Select(x => x.Tier).ToList();
+		var isStorm = fissuresJsonResponse!.Select(x => x.IsStorm).ToList();
+		var isHard = fissuresJsonResponse!.Select(x => x.IsHard).ToList();
 
 		var embedBuilder = new EmbedBuilder()
 			.WithTitle("Fissures")
 			.WithColor(Color.Blue);
+		
+		// only check for mission type
+		if (missionTypes.Any(x => x.Contains("Survival")))
+		{
+			embedBuilder.AddField("Survival",
+				string.Join("\n",
+					planets.Where(x => missionTypes[planets.IndexOf(x)]
+							.Contains("Survival"))
+						.Select(x =>
+							$"**{x}** - {enemyTypes[planets.IndexOf(x)]} - {types[planets.IndexOf(x)]} - <t:{expiryTimes[planets.IndexOf(x)]}:R>")));
+		}
+		if(isStorm.Any(x => x))
+		{
+			embedBuilder.AddField("Storm",
+				string.Join("\n",
+					planets.Where(x => isStorm[planets.IndexOf(x)]).Select(x =>
+						$"**{x}** - {enemyTypes[planets.IndexOf(x)]} - {types[planets.IndexOf(x)]} - <t:{expiryTimes[planets.IndexOf(x)]}:R>")));
+		}
+		if (isHard.Any(x => x))
+		{
+			embedBuilder.AddField("Hard",
+				string.Join("\n",
+					planets.Where(x => isHard[planets.IndexOf(x)]).Select(x =>
+						$"**{x}** - {enemyTypes[planets.IndexOf(x)]} - {types[planets.IndexOf(x)]} - <t:{expiryTimes[planets.IndexOf(x)]}:R>")));
+		}
 
 		for (var i = 0; i < fissuresJsonResponse!.Count; i++)
 		{
@@ -85,9 +112,7 @@ public sealed class NormalCommandModule : InteractionModuleBase<SocketInteractio
 			                                          $"Type: {types[i]}\n");
 			
 			if (i % 25 == 24 || i == fissuresJsonResponse.Count - 1)
-			{
 				await FollowupAsync(embed: embedBuilder.Build(), options: Options);
-			}
 
 		}
 		
