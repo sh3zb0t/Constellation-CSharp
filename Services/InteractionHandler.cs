@@ -4,6 +4,7 @@ using Discord.Interactions;
 using Discord.WebSocket;
 using Serilog;
 using WaframeDiscordBot.Modules;
+using CyclesGroup = WaframeDiscordBot.Modules.Cycles.CyclesGroup;
 
 namespace WaframeDiscordBot.Services;
 
@@ -35,7 +36,7 @@ public class InteractionHandler
     private static async Task SlashCommandExecuted(SlashCommandInfo arg1, IInteractionContext arg2, IResult arg3)
     {
         if (arg3 is { IsSuccess: false, Error: InteractionCommandError.UnmetPrecondition })
-            await arg2.Interaction.RespondAsync(arg3.ErrorReason, ephemeral: true, options: TopLevel.Options);
+            await arg2.Interaction.RespondAsync(arg3.ErrorReason, ephemeral: true, options: Globals.Options);
     }
 
     private async Task HandleInteraction(SocketInteraction arg)

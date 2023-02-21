@@ -3,7 +3,7 @@ using Discord.Interactions;
 
 namespace WaframeDiscordBot.Modules;
 
-public sealed partial class TopLevel : InteractionModuleBase<SocketInteractionContext>
+public sealed partial class CyclesGroup : InteractionModuleBase<SocketInteractionContext>
 {
     public static readonly HttpClient HttpClient = new();
 
