@@ -3,8 +3,6 @@ using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Serilog;
-using WaframeDiscordBot.Modules;
-using CyclesGroup = WaframeDiscordBot.Modules.Cycles.CyclesGroup;
 
 namespace WaframeDiscordBot.Services;
 
@@ -44,7 +42,7 @@ public class InteractionHandler
         try
         {
             // Create an execution context that matches the generic type parameter of your InteractionModuleBase<T> modules
-            SocketInteractionContext ctx = new (_discordClient, arg);
+            SocketInteractionContext ctx = new(_discordClient, arg);
             await _commands.ExecuteCommandAsync(ctx, _services);
         }
         catch (Exception ex)

@@ -5,7 +5,7 @@ namespace WaframeDiscordBot.Modules.Cycles;
 
 public partial class CyclesGroup
 {
-    [SlashCommand("vallis","Vallis Cycle")]
+    [SlashCommand("vallis", "Vallis Cycle")]
     public async Task VallisCycleCmd()
     {
         await DeferAsync(options: Globals.Options);

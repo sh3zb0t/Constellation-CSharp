@@ -5,7 +5,7 @@ namespace WaframeDiscordBot.Modules.Cycles;
 
 public partial class CyclesGroup
 {
-    [SlashCommand("cetus","Cetus Cycle")]
+    [SlashCommand("cetus", "Cetus Cycle")]
     public async Task CetusCycleCmd()
     {
         await DeferAsync(options: Globals.Options);

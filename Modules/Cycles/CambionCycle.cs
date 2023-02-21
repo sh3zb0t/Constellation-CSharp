@@ -5,7 +5,7 @@ namespace WaframeDiscordBot.Modules.Cycles;
 
 public partial class CyclesGroup
 {
-    [SlashCommand("cambion","Cambion Cycle")]
+    [SlashCommand("cambion", "Cambion Cycle")]
     public async Task CambionCycleCmd()
     {
         await DeferAsync(options: Globals.Options);
